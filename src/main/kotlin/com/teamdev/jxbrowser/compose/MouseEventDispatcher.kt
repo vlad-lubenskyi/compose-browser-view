@@ -1,11 +1,17 @@
 package com.teamdev.jxbrowser.compose
 
+import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
+import com.teamdev.jxbrowser.ui.KeyModifiers
 import com.teamdev.jxbrowser.ui.MouseButton
+import com.teamdev.jxbrowser.ui.MouseModifiers
 import com.teamdev.jxbrowser.ui.Point
 import com.teamdev.jxbrowser.ui.event.*
+import java.awt.event.InputEvent
+import java.awt.event.MouseEvent
+import javax.swing.SwingUtilities.*
 
 class MouseEventDispatcher(private val widget: BrowserWidget) {
 
@@ -13,10 +19,13 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         val position = event.changes.first().position
         when (event.type) {
             PointerEventType.Press -> {
-                mousePressed(position, event)
+                mousePressed(event, position)
+            }
+            PointerEventType.Release -> {
+                mouseReleased(event, position)
             }
             PointerEventType.Move -> {
-                mouseMoved(position)
+                mouseMoved(event, position)
             }
             PointerEventType.Enter -> {
                 mouseEntered(event, position)
@@ -24,57 +33,57 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
             PointerEventType.Exit -> {
                 mouseExited(event, position)
             }
-            PointerEventType.Release -> {
-                mouseReleased(event, position)
-            }
         }
     }
 
-    private fun mouseReleased(event: PointerEvent, position: Offset) {
-        val build = MouseReleased.newBuilder(
-            Point.of(
-                position.x.toInt() / LayoutListener.SCALE_FACTOR,
-                position.y.toInt() / LayoutListener.SCALE_FACTOR
-            )
+    private fun mousePressed(event: PointerEvent, position: Offset) {
+        val awtEvent = event.awtEventOrNull!!
+        val locationOnScreen = Point.of(awtEvent.locationOnScreen.x, awtEvent.locationOnScreen.y)
+        widget.dispatch(
+            MousePressed.newBuilder(point(position))
+                .button(mouseButton(event))
+                .locationOnScreen(locationOnScreen)
+                .clickCount(awtEvent.clickCount)
+                .mouseModifiers(mouseModifiers(event))
+                .keyModifiers(keyModifiers(event))
+                .build()
         )
-            .button(mouseButton(event))
-            .clickCount(1)
-            .build()
-        widget.dispatch(build)
+    }
+
+    private fun mouseReleased(event: PointerEvent, position: Offset) {
+        val awtEvent = event.awtEventOrNull!!
+        val locationOnScreen = Point.of(awtEvent.locationOnScreen.x, awtEvent.locationOnScreen.y)
+        widget.dispatch(
+            MouseReleased.newBuilder(point(position))
+                .button(releasedMouseButton(awtEvent))
+                .locationOnScreen(locationOnScreen)
+                .clickCount(awtEvent.clickCount)
+                .mouseModifiers(mouseModifiers(event))
+                .keyModifiers(keyModifiers(event))
+                .build()
+        )
     }
 
     private fun mouseEntered(event: PointerEvent, position: Offset) {
-        val point = point(position)
-        val jxEvent = MouseEntered.newBuilder(point)
-            .button(mouseButton(event))
-            .locationOnScreen(point)
-            .build()
-        widget.dispatch(jxEvent)
+        widget.dispatch(
+            MouseEntered.newBuilder(point(position))
+                .build()
+        )
     }
 
     private fun mouseExited(event: PointerEvent, position: Offset) {
-        val jxEvent = MouseExited.newBuilder(Point.of(position.x.toInt() / 2, position.y.toInt() / 2))
-            .build()
-        widget.dispatch(jxEvent)
+        widget.dispatch(
+            MouseExited.newBuilder(point(position))
+                .build()
+        )
     }
 
-    private fun mouseMoved(position: Offset) {
-        val jxEvent = MouseMoved.newBuilder(Point.of(position.x.toInt() / 2, position.y.toInt() / 2))
-            .build()
-        widget.dispatch(jxEvent)
+    private fun mouseMoved(event: PointerEvent, position: Offset) {
+        widget.dispatch(
+            MouseMoved.newBuilder(point(position))
+                .build()
+        )
     }
-
-    private fun mousePressed(
-        position: Offset,
-        event: PointerEvent
-    ) {
-        val build = MousePressed.newBuilder(Point.of(position.x.toInt() / 2, position.y.toInt() / 2))
-            .button(mouseButton(event))
-            .clickCount(1)
-            .build()
-        widget.dispatch(build)
-    }
-
 
     private fun mouseButton(event: PointerEvent): MouseButton {
         val buttons = event.buttons
@@ -93,8 +102,46 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         }
     }
 
+    private fun releasedMouseButton(event: MouseEvent): MouseButton {
+        if (isLeftMouseButton(event)) {
+            return MouseButton.PRIMARY
+        } else if (isMiddleMouseButton(event)) {
+            return MouseButton.MIDDLE
+        } else if (isRightMouseButton(event)) {
+            return MouseButton.SECONDARY
+        }
+        return if (event.button == MouseEvent.NOBUTTON) {
+            MouseButton.NO_BUTTON
+        } else MouseButton.MOUSE_BUTTON_UNSPECIFIED
+    }
+
+    private fun mouseModifiers(event: PointerEvent): MouseModifiers {
+        val awtEvent = event.awtEventOrNull!!
+        val modifiersEx = awtEvent.modifiersEx
+        return MouseModifiers.newBuilder()
+            .primaryButtonDown(
+                modifiersEx and InputEvent.BUTTON1_DOWN_MASK == InputEvent.BUTTON1_DOWN_MASK
+            )
+            .middleButtonDown(
+                modifiersEx and InputEvent.BUTTON2_DOWN_MASK == InputEvent.BUTTON2_DOWN_MASK
+            )
+            .secondaryButtonDown(
+                modifiersEx and InputEvent.BUTTON3_DOWN_MASK == InputEvent.BUTTON3_DOWN_MASK
+            )
+            .build()
+    }
+
+    private fun keyModifiers(event: PointerEvent): KeyModifiers {
+        val keyboardModifiers = event.keyboardModifiers
+        return KeyModifiers.newBuilder()
+            .altDown(keyboardModifiers.isAltPressed)
+            .altGraphDown(keyboardModifiers.isAltGraphPressed)
+            .controlDown(keyboardModifiers.isCtrlPressed)
+            .shiftDown(keyboardModifiers.isShiftPressed)
+            .metaDown(keyboardModifiers.isMetaPressed)
+            .build()
+    }
+
     private fun point(offset: Offset) =
         Point.of(offset.x.toInt() / LayoutListener.SCALE_FACTOR, offset.y.toInt() / LayoutListener.SCALE_FACTOR)
-
-
 }
