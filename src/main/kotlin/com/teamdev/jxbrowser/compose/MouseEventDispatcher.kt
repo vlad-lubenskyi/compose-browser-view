@@ -103,16 +103,17 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
     }
 
     private fun releasedMouseButton(event: MouseEvent): MouseButton {
-        if (isLeftMouseButton(event)) {
-            return MouseButton.PRIMARY
+        return if (isLeftMouseButton(event)) {
+            MouseButton.PRIMARY
         } else if (isMiddleMouseButton(event)) {
-            return MouseButton.MIDDLE
+            MouseButton.MIDDLE
         } else if (isRightMouseButton(event)) {
-            return MouseButton.SECONDARY
-        }
-        return if (event.button == MouseEvent.NOBUTTON) {
+            MouseButton.SECONDARY
+        } else if (event.button == MouseEvent.NOBUTTON) {
             MouseButton.NO_BUTTON
-        } else MouseButton.MOUSE_BUTTON_UNSPECIFIED
+        } else {
+            MouseButton.MOUSE_BUTTON_UNSPECIFIED
+        }
     }
 
     private fun mouseModifiers(event: PointerEvent): MouseModifiers {
