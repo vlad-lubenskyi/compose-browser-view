@@ -1,20 +1,21 @@
 package com.teamdev.jxbrowser.compose
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
-import com.teamdev.jxbrowser.ui.KeyModifiers
-import com.teamdev.jxbrowser.ui.MouseButton
-import com.teamdev.jxbrowser.ui.MouseModifiers
-import com.teamdev.jxbrowser.ui.Point
+import com.teamdev.jxbrowser.os.Environment
+import com.teamdev.jxbrowser.ui.*
 import com.teamdev.jxbrowser.ui.event.*
 import java.awt.event.InputEvent
 import java.awt.event.MouseEvent
+import java.awt.event.MouseWheelEvent
 import javax.swing.SwingUtilities.*
 
 class MouseEventDispatcher(private val widget: BrowserWidget) {
 
+    @OptIn(ExperimentalComposeUiApi::class)
     fun dispatch(event: PointerEvent) {
         val position = event.changes.first().position
         when (event.type) {
@@ -32,6 +33,9 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
             }
             PointerEventType.Exit -> {
                 mouseExited(event, position)
+            }
+            PointerEventType.Scroll -> {
+                mouseScrolled(event, position)
             }
         }
     }
@@ -81,6 +85,27 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
     private fun mouseMoved(event: PointerEvent, position: Offset) {
         widget.dispatch(
             MouseMoved.newBuilder(point(position))
+                .build()
+        )
+    }
+
+    private fun mouseScrolled(pointerEvent: PointerEvent, position: Offset) {
+        val e = pointerEvent.awtEventOrNull as MouseWheelEvent
+        val directionFix = -1
+        val scrollType = ScrollType.forNumber(e.scrollType)
+        if (scrollType == null) {
+            ScrollType.SCROLL_TYPE_UNSPECIFIED
+        }
+        val pointsPerUnit: Float = if (Environment.isMac()) 10F else 100f / 3
+        val delta: Float = e.unitsToScroll * pointsPerUnit * directionFix
+        val deltaX: Float = if (e.isShiftDown) delta else 0F
+        val deltaY: Float = if (!e.isShiftDown) delta else 0F
+        widget.dispatch(
+            MouseWheel.newBuilder(point(position))
+                .deltaX(deltaX)
+                .deltaY(deltaY)
+                .scrollType(scrollType)
+                .keyModifiers(keyModifiers(pointerEvent))
                 .build()
         )
     }
