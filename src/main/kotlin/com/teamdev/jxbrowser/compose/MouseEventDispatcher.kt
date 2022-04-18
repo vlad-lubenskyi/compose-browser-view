@@ -2,11 +2,10 @@ package com.teamdev.jxbrowser.compose
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.awtEventOrNull
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
 import com.teamdev.jxbrowser.compose.LayoutListener.Companion.SCALE_FACTOR
-import com.teamdev.jxbrowser.os.Environment
+import com.teamdev.jxbrowser.os.Environment.isMac
 import com.teamdev.jxbrowser.ui.*
 import com.teamdev.jxbrowser.ui.event.*
 import java.awt.event.MouseEvent
@@ -17,34 +16,33 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun dispatch(event: PointerEvent) {
-        val position = event.changes.first().position
         when (event.type) {
             PointerEventType.Press -> {
-                mousePressed(event, position)
+                mousePressed(event)
             }
             PointerEventType.Release -> {
-                mouseReleased(event, position)
+                mouseReleased(event)
             }
             PointerEventType.Move -> {
-                mouseMoved(event, position)
+                mouseMoved(event)
             }
             PointerEventType.Enter -> {
-                mouseEntered(event, position)
+                mouseEntered(event)
             }
             PointerEventType.Exit -> {
-                mouseExited(event, position)
+                mouseExited(event)
             }
             PointerEventType.Scroll -> {
-                mouseScrolled(event, position)
+                mouseScrolled(event)
             }
         }
     }
 
-    private fun mousePressed(event: PointerEvent, position: Offset) {
+    private fun mousePressed(event: PointerEvent) {
         val clickCount = event.awtEventOrNull?.clickCount ?: 1
         widget.dispatch(
-            MousePressed.newBuilder(localPoint(position))
-                .locationOnScreen(screenPoint(event, position))
+            MousePressed.newBuilder(localPoint(event))
+                .locationOnScreen(screenPoint(event))
                 .button(mouseButton(event))
                 .clickCount(clickCount)
                 .mouseModifiers(mouseModifiers(event))
@@ -53,11 +51,11 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         )
     }
 
-    private fun mouseReleased(event: PointerEvent, position: Offset) {
+    private fun mouseReleased(event: PointerEvent) {
         val clickCount = event.awtEventOrNull?.clickCount ?: 1
         widget.dispatch(
-            MouseReleased.newBuilder(localPoint(position))
-                .locationOnScreen(screenPoint(event, position))
+            MouseReleased.newBuilder(localPoint(event))
+                .locationOnScreen(screenPoint(event))
                 .button(releasedMouseButton(event))
                 .clickCount(clickCount)
                 .mouseModifiers(mouseModifiers(event))
@@ -66,10 +64,10 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         )
     }
 
-    private fun mouseEntered(event: PointerEvent, position: Offset) {
+    private fun mouseEntered(event: PointerEvent) {
         widget.dispatch(
-            MouseEntered.newBuilder(localPoint(position))
-                .locationOnScreen(screenPoint(event, position))
+            MouseEntered.newBuilder(localPoint(event))
+                .locationOnScreen(screenPoint(event))
                 .button(mouseButton(event))
                 .mouseModifiers(mouseModifiers(event))
                 .keyModifiers(keyModifiers(event))
@@ -77,10 +75,10 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         )
     }
 
-    private fun mouseExited(event: PointerEvent, position: Offset) {
+    private fun mouseExited(event: PointerEvent) {
         widget.dispatch(
-            MouseExited.newBuilder(localPoint(position))
-                .locationOnScreen(screenPoint(event, position))
+            MouseExited.newBuilder(localPoint(event))
+                .locationOnScreen(screenPoint(event))
                 .button(mouseButton(event))
                 .mouseModifiers(mouseModifiers(event))
                 .keyModifiers(keyModifiers(event))
@@ -88,30 +86,27 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         )
     }
 
-    private fun mouseMoved(event: PointerEvent, position: Offset) {
+    private fun mouseMoved(event: PointerEvent) {
         widget.dispatch(
-            MouseMoved.newBuilder(localPoint(position))
-                .locationOnScreen(screenPoint(event, position))
+            MouseMoved.newBuilder(localPoint(event))
+                .locationOnScreen(screenPoint(event))
                 .mouseModifiers(mouseModifiers(event))
                 .keyModifiers(keyModifiers(event))
                 .build()
         )
     }
 
-    private fun mouseScrolled(event: PointerEvent, position: Offset) {
+    private fun mouseScrolled(event: PointerEvent) {
         val awtEvent = event.awtEventOrNull as MouseWheelEvent
+        val scrollType = ScrollType.forNumber(awtEvent.scrollType) ?: ScrollType.SCROLL_TYPE_UNSPECIFIED
+        val pointsPerUnit = if (isMac()) 10F else 100f / 3
         val directionFix = -1
-        val scrollType = ScrollType.forNumber(awtEvent.scrollType)
-        if (scrollType == null) {
-            ScrollType.SCROLL_TYPE_UNSPECIFIED
-        }
-        val pointsPerUnit: Float = if (Environment.isMac()) 10F else 100f / 3
-        val delta: Float = awtEvent.unitsToScroll * pointsPerUnit * directionFix
-        val deltaX: Float = if (awtEvent.isShiftDown) delta else 0F
-        val deltaY: Float = if (!awtEvent.isShiftDown) delta else 0F
+        val delta = awtEvent.unitsToScroll * pointsPerUnit * directionFix
+        val deltaX = if (awtEvent.isShiftDown) delta else 0F
+        val deltaY = if (!awtEvent.isShiftDown) delta else 0F
         widget.dispatch(
-            MouseWheel.newBuilder(localPoint(position))
-                .locationOnScreen(screenPoint(event, position))
+            MouseWheel.newBuilder(localPoint(event))
+                .locationOnScreen(screenPoint(event))
                 .deltaX(deltaX)
                 .deltaY(deltaY)
                 .scrollType(scrollType)
@@ -172,14 +167,19 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
             .build()
     }
 
-    private fun localPoint(offset: Offset) =
-        Point.of(offset.x.toInt() / SCALE_FACTOR, offset.y.toInt() / SCALE_FACTOR)
+    private fun localPoint(event: PointerEvent): Point {
+        val position = event.changes.first().position
+        val x = position.x.toInt()
+        val y = position.y.toInt()
+        return Point.of(x / SCALE_FACTOR, y / SCALE_FACTOR)
+    }
 
-    private fun screenPoint(event: PointerEvent, offset: Offset): Point {
-        val awtEvent = event.awtEventOrNull ?: return localPoint(offset)
-        val location = awtEvent.locationOnScreen
-        val globalX = location.x + offset.x.toInt()
-        val globalY = location.y + offset.y.toInt()
+    private fun screenPoint(event: PointerEvent): Point {
+        val awtEvent = event.awtEventOrNull ?: return localPoint(event)
+        val awtLocation = awtEvent.locationOnScreen
+        val position = event.changes.first().position
+        val globalX = awtLocation.x + position.x.toInt()
+        val globalY = awtLocation.y + position.y.toInt()
         return Point.of(globalX / SCALE_FACTOR, globalY / SCALE_FACTOR)
     }
 }
