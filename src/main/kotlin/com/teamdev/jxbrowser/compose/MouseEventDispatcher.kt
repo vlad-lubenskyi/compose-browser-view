@@ -5,6 +5,7 @@ import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
+import com.teamdev.jxbrowser.compose.LayoutListener.Companion.SCALE_FACTOR
 import com.teamdev.jxbrowser.os.Environment
 import com.teamdev.jxbrowser.ui.*
 import com.teamdev.jxbrowser.ui.event.*
@@ -42,11 +43,10 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
 
     private fun mousePressed(event: PointerEvent, position: Offset) {
         val awtEvent = event.awtEventOrNull!!
-        val locationOnScreen = Point.of(awtEvent.locationOnScreen.x, awtEvent.locationOnScreen.y)
         widget.dispatch(
-            MousePressed.newBuilder(point(position))
+            MousePressed.newBuilder(localPoint(position))
+                .locationOnScreen(screenPoint(event, position))
                 .button(mouseButton(event))
-                .locationOnScreen(locationOnScreen)
                 .clickCount(awtEvent.clickCount)
                 .mouseModifiers(mouseModifiers(event))
                 .keyModifiers(keyModifiers(event))
@@ -56,11 +56,10 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
 
     private fun mouseReleased(event: PointerEvent, position: Offset) {
         val awtEvent = event.awtEventOrNull!!
-        val locationOnScreen = Point.of(awtEvent.locationOnScreen.x, awtEvent.locationOnScreen.y)
         widget.dispatch(
-            MouseReleased.newBuilder(point(position))
+            MouseReleased.newBuilder(localPoint(position))
+                .locationOnScreen(screenPoint(event, position))
                 .button(releasedMouseButton(awtEvent))
-                .locationOnScreen(locationOnScreen)
                 .clickCount(awtEvent.clickCount)
                 .mouseModifiers(mouseModifiers(event))
                 .keyModifiers(keyModifiers(event))
@@ -70,21 +69,24 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
 
     private fun mouseEntered(event: PointerEvent, position: Offset) {
         widget.dispatch(
-            MouseEntered.newBuilder(point(position))
+            MouseEntered.newBuilder(localPoint(position))
+                .locationOnScreen(screenPoint(event, position))
                 .build()
         )
     }
 
     private fun mouseExited(event: PointerEvent, position: Offset) {
         widget.dispatch(
-            MouseExited.newBuilder(point(position))
+            MouseExited.newBuilder(localPoint(position))
+                .locationOnScreen(screenPoint(event, position))
                 .build()
         )
     }
 
     private fun mouseMoved(event: PointerEvent, position: Offset) {
         widget.dispatch(
-            MouseMoved.newBuilder(point(position))
+            MouseMoved.newBuilder(localPoint(position))
+                .locationOnScreen(screenPoint(event, position))
                 .build()
         )
     }
@@ -101,7 +103,8 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         val deltaX: Float = if (e.isShiftDown) delta else 0F
         val deltaY: Float = if (!e.isShiftDown) delta else 0F
         widget.dispatch(
-            MouseWheel.newBuilder(point(position))
+            MouseWheel.newBuilder(localPoint(position))
+                .locationOnScreen(screenPoint(pointerEvent, position))
                 .deltaX(deltaX)
                 .deltaY(deltaY)
                 .scrollType(scrollType)
@@ -168,6 +171,14 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
             .build()
     }
 
-    private fun point(offset: Offset) =
-        Point.of(offset.x.toInt() / LayoutListener.SCALE_FACTOR, offset.y.toInt() / LayoutListener.SCALE_FACTOR)
+    private fun localPoint(offset: Offset) =
+        Point.of(offset.x.toInt() / SCALE_FACTOR, offset.y.toInt() / SCALE_FACTOR)
+
+    private fun screenPoint(event: PointerEvent, offset: Offset): Point {
+        val awtEvent = event.awtEventOrNull ?: return localPoint(offset)
+        val location = awtEvent.locationOnScreen
+        val globalX = location.x + offset.x.toInt()
+        val globalY = location.y + offset.y.toInt()
+        return Point.of(globalX / SCALE_FACTOR, globalY / SCALE_FACTOR)
+    }
 }
