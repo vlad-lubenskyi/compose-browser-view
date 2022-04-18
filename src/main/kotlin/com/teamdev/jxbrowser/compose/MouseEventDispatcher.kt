@@ -176,10 +176,7 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
 
     private fun screenPoint(event: PointerEvent): Point {
         val awtEvent = event.awtEventOrNull ?: return localPoint(event)
-        val awtLocation = awtEvent.locationOnScreen
-        val position = event.changes.first().position
-        val globalX = awtLocation.x + position.x.toInt()
-        val globalY = awtLocation.y + position.y.toInt()
-        return Point.of(globalX / SCALE_FACTOR, globalY / SCALE_FACTOR)
+        val location = awtEvent.locationOnScreen
+        return Point.of(location.x, location.y)
     }
 }
