@@ -9,7 +9,6 @@ import com.teamdev.jxbrowser.compose.LayoutListener.Companion.SCALE_FACTOR
 import com.teamdev.jxbrowser.os.Environment
 import com.teamdev.jxbrowser.ui.*
 import com.teamdev.jxbrowser.ui.event.*
-import java.awt.event.InputEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import javax.swing.SwingUtilities.*
@@ -42,12 +41,12 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
     }
 
     private fun mousePressed(event: PointerEvent, position: Offset) {
-        val awtEvent = event.awtEventOrNull!!
+        val clickCount = event.awtEventOrNull?.clickCount ?: 1
         widget.dispatch(
             MousePressed.newBuilder(localPoint(position))
                 .locationOnScreen(screenPoint(event, position))
                 .button(mouseButton(event))
-                .clickCount(awtEvent.clickCount)
+                .clickCount(clickCount)
                 .mouseModifiers(mouseModifiers(event))
                 .keyModifiers(keyModifiers(event))
                 .build()
@@ -55,12 +54,12 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
     }
 
     private fun mouseReleased(event: PointerEvent, position: Offset) {
-        val awtEvent = event.awtEventOrNull!!
+        val clickCount = event.awtEventOrNull?.clickCount ?: 1
         widget.dispatch(
             MouseReleased.newBuilder(localPoint(position))
                 .locationOnScreen(screenPoint(event, position))
-                .button(releasedMouseButton(awtEvent))
-                .clickCount(awtEvent.clickCount)
+                .button(releasedMouseButton(event))
+                .clickCount(clickCount)
                 .mouseModifiers(mouseModifiers(event))
                 .keyModifiers(keyModifiers(event))
                 .build()
@@ -71,6 +70,9 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         widget.dispatch(
             MouseEntered.newBuilder(localPoint(position))
                 .locationOnScreen(screenPoint(event, position))
+                .button(mouseButton(event))
+                .mouseModifiers(mouseModifiers(event))
+                .keyModifiers(keyModifiers(event))
                 .build()
         )
     }
@@ -79,6 +81,9 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         widget.dispatch(
             MouseExited.newBuilder(localPoint(position))
                 .locationOnScreen(screenPoint(event, position))
+                .button(mouseButton(event))
+                .mouseModifiers(mouseModifiers(event))
+                .keyModifiers(keyModifiers(event))
                 .build()
         )
     }
@@ -87,28 +92,30 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         widget.dispatch(
             MouseMoved.newBuilder(localPoint(position))
                 .locationOnScreen(screenPoint(event, position))
+                .mouseModifiers(mouseModifiers(event))
+                .keyModifiers(keyModifiers(event))
                 .build()
         )
     }
 
-    private fun mouseScrolled(pointerEvent: PointerEvent, position: Offset) {
-        val e = pointerEvent.awtEventOrNull as MouseWheelEvent
+    private fun mouseScrolled(event: PointerEvent, position: Offset) {
+        val awtEvent = event.awtEventOrNull as MouseWheelEvent
         val directionFix = -1
-        val scrollType = ScrollType.forNumber(e.scrollType)
+        val scrollType = ScrollType.forNumber(awtEvent.scrollType)
         if (scrollType == null) {
             ScrollType.SCROLL_TYPE_UNSPECIFIED
         }
         val pointsPerUnit: Float = if (Environment.isMac()) 10F else 100f / 3
-        val delta: Float = e.unitsToScroll * pointsPerUnit * directionFix
-        val deltaX: Float = if (e.isShiftDown) delta else 0F
-        val deltaY: Float = if (!e.isShiftDown) delta else 0F
+        val delta: Float = awtEvent.unitsToScroll * pointsPerUnit * directionFix
+        val deltaX: Float = if (awtEvent.isShiftDown) delta else 0F
+        val deltaY: Float = if (!awtEvent.isShiftDown) delta else 0F
         widget.dispatch(
             MouseWheel.newBuilder(localPoint(position))
-                .locationOnScreen(screenPoint(pointerEvent, position))
+                .locationOnScreen(screenPoint(event, position))
                 .deltaX(deltaX)
                 .deltaY(deltaY)
                 .scrollType(scrollType)
-                .keyModifiers(keyModifiers(pointerEvent))
+                .keyModifiers(keyModifiers(event))
                 .build()
         )
     }
@@ -130,14 +137,15 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         }
     }
 
-    private fun releasedMouseButton(event: MouseEvent): MouseButton {
-        return if (isLeftMouseButton(event)) {
+    private fun releasedMouseButton(event: PointerEvent): MouseButton {
+        val awtEvent = event.awtEventOrNull
+        return if (isLeftMouseButton(awtEvent)) {
             MouseButton.PRIMARY
-        } else if (isMiddleMouseButton(event)) {
+        } else if (isMiddleMouseButton(awtEvent)) {
             MouseButton.MIDDLE
-        } else if (isRightMouseButton(event)) {
+        } else if (isRightMouseButton(awtEvent)) {
             MouseButton.SECONDARY
-        } else if (event.button == MouseEvent.NOBUTTON) {
+        } else if (awtEvent?.button == MouseEvent.NOBUTTON) {
             MouseButton.NO_BUTTON
         } else {
             MouseButton.MOUSE_BUTTON_UNSPECIFIED
@@ -145,18 +153,11 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
     }
 
     private fun mouseModifiers(event: PointerEvent): MouseModifiers {
-        val awtEvent = event.awtEventOrNull!!
-        val modifiersEx = awtEvent.modifiersEx
+        val buttons = event.buttons
         return MouseModifiers.newBuilder()
-            .primaryButtonDown(
-                modifiersEx and InputEvent.BUTTON1_DOWN_MASK == InputEvent.BUTTON1_DOWN_MASK
-            )
-            .middleButtonDown(
-                modifiersEx and InputEvent.BUTTON2_DOWN_MASK == InputEvent.BUTTON2_DOWN_MASK
-            )
-            .secondaryButtonDown(
-                modifiersEx and InputEvent.BUTTON3_DOWN_MASK == InputEvent.BUTTON3_DOWN_MASK
-            )
+            .primaryButtonDown(buttons.isPrimaryPressed)
+            .middleButtonDown(buttons.isTertiaryPressed)
+            .secondaryButtonDown(buttons.isSecondaryPressed)
             .build()
     }
 
