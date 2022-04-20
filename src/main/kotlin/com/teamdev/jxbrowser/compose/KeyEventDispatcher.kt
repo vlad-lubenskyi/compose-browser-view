@@ -2,8 +2,10 @@ package com.teamdev.jxbrowser.compose
 
 import androidx.compose.ui.input.key.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
+import com.teamdev.jxbrowser.compose.internal.ComposeKey
+import com.teamdev.jxbrowser.compose.internal.ComposeKeyCodes
+import com.teamdev.jxbrowser.internal.ui.ToolkitKeyCodes
 import com.teamdev.jxbrowser.os.Environment.isMac
-import com.teamdev.jxbrowser.ui.KeyCode
 import com.teamdev.jxbrowser.ui.KeyLocation
 import com.teamdev.jxbrowser.ui.KeyModifiers
 import com.teamdev.jxbrowser.ui.event.KeyPressed
@@ -11,10 +13,11 @@ import com.teamdev.jxbrowser.ui.event.KeyReleased
 import com.teamdev.jxbrowser.ui.event.KeyTyped
 import com.teamdev.jxbrowser.ui.internal.KeyCodes
 import com.teamdev.jxbrowser.ui.internal.KeyEvents.isMacAccessKey
-import java.awt.event.KeyEvent.CHAR_UNDEFINED
-import java.awt.event.KeyEvent.VK_ENTER
+import java.awt.event.KeyEvent.*
 
 class KeyEventDispatcher(private val widget: BrowserWidget) {
+
+    private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance()
 
     fun dispatch(event: KeyEvent) {
         when (event.type) {
@@ -32,7 +35,7 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
 
     private fun keyTyped(event: KeyEvent) {
         val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
-        val keyCode = keyCode(awtKeyEvent)
+        val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
         val keyLocation = keyLocation(awtKeyEvent)
         val modifiers = keyModifiers(event)
         var keyChar = awtKeyEvent.keyChar
@@ -50,17 +53,14 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
 
     private fun keyPressed(event: KeyEvent) {
         val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
-        var keyCode = keyCode(awtKeyEvent)
-        if (isSystemKey(awtKeyEvent)) {
-            keyCode = KeyCode.KEY_CODE_RETURN
-        }
+        val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
         val keyLocation = keyLocation(awtKeyEvent)
         val builder = KeyPressed.newBuilder(keyCode)
             .keyLocation(keyLocation)
             .keyModifiers(keyModifiers(event))
 
         val keyChar = awtKeyEvent.keyChar
-        if (keyChar != CHAR_UNDEFINED && !isSystemKey(awtKeyEvent)) {
+        if (keyChar != CHAR_UNDEFINED) {
             builder.keyChar(keyChar)
         }
         widget.dispatch(builder.build())
@@ -68,10 +68,7 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
 
     private fun keyReleased(event: KeyEvent) {
         val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
-        var keyCode = keyCode(awtKeyEvent)
-        if (isSystemKey(awtKeyEvent)) {
-            keyCode = KeyCode.KEY_CODE_RETURN
-        }
+        val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
         val keyLocation = keyLocation(awtKeyEvent)
         widget.dispatch(
             KeyReleased.newBuilder(keyCode)
@@ -81,16 +78,21 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
         )
     }
 
-    private fun keyCode(e: java.awt.event.KeyEvent): KeyCode {
-        return KeyCode.forNumber(e.keyCode) ?: KeyCode.KEY_CODE_UNSPECIFIED
-    }
-
     private fun keyLocation(e: java.awt.event.KeyEvent): KeyLocation {
-        return KeyLocation.forNumber(e.keyLocation) ?: KeyLocation.KEY_LOCATION_UNSPECIFIED
-    }
-
-    private fun isSystemKey(e: java.awt.event.KeyEvent): Boolean {
-        return e.keyCode == VK_ENTER
+        return when (e.keyLocation) {
+            KEY_LOCATION_NUMPAD -> {
+                KeyLocation.NUMERIC_KEYPAD
+            }
+            KEY_LOCATION_LEFT -> {
+                KeyLocation.LEFT
+            }
+            KEY_LOCATION_RIGHT -> {
+                KeyLocation.RIGHT
+            }
+            else -> {
+                KeyLocation.STANDARD
+            }
+        }
     }
 
     private fun keyModifiers(event: KeyEvent): KeyModifiers {

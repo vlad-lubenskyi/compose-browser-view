@@ -67,7 +67,11 @@ class BrowserView(browser: Browser) {
                     true
                 }
                 .onFocusEvent {
-                    if (it.hasFocus) widget.focus() else widget.unfocus()
+                    if (it.hasFocus) {
+                        widget.focus()
+                    } else {
+                        widget.unfocus()
+                    }
                 }
                 .focusable()
         ) {
@@ -76,8 +80,8 @@ class BrowserView(browser: Browser) {
                     image.value?.let {
                         canvas.nativeCanvas.drawImage(it, 0f, 0f)
                     }
-                    focusRequester.requestFocus()
                 }
+                focusRequester.requestFocus()
             }
         }
     }
