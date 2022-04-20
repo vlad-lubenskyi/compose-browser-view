@@ -23,6 +23,8 @@ import com.teamdev.jxbrowser.browser.internal.BrowserWidget
 import com.teamdev.jxbrowser.browser.internal.callback.PaintCallback
 import com.teamdev.jxbrowser.browser.internal.rpc.Paint
 import com.teamdev.jxbrowser.browser.internal.rpc.PaintRequest
+import com.teamdev.jxbrowser.compose.internal.KeyEventDispatcher
+import com.teamdev.jxbrowser.compose.internal.MouseEventDispatcher
 import com.teamdev.jxbrowser.internal.Display
 import com.teamdev.jxbrowser.ui.Size
 import org.jetbrains.skia.Image

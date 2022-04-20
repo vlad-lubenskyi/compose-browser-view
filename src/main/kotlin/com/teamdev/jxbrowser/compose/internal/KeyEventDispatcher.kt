@@ -1,9 +1,7 @@
-package com.teamdev.jxbrowser.compose
+package com.teamdev.jxbrowser.compose.internal
 
 import androidx.compose.ui.input.key.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
-import com.teamdev.jxbrowser.compose.internal.ComposeKey
-import com.teamdev.jxbrowser.compose.internal.ComposeKeyCodes
 import com.teamdev.jxbrowser.internal.ui.ToolkitKeyCodes
 import com.teamdev.jxbrowser.os.Environment.isMac
 import com.teamdev.jxbrowser.ui.KeyLocation
