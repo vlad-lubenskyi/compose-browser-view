@@ -19,9 +19,6 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
 
     fun dispatch(event: KeyEvent) {
         when (event.type) {
-            KeyEventType.Unknown -> {
-                keyTyped(event)
-            }
             KeyEventType.KeyDown -> {
                 keyPressed(event)
             }
@@ -31,37 +28,37 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
         }
     }
 
-    private fun keyTyped(event: KeyEvent) {
-        val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
-        val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
-        val keyLocation = keyLocation(awtKeyEvent)
-        val modifiers = keyModifiers(event)
-        var keyChar = awtKeyEvent.keyChar
-        if (isMac() && isMacAccessKey(keyCode, modifiers)) {
-            keyChar = KeyCodes.toAlphabeticChar(keyCode)
-        }
-        widget.dispatch(
-            KeyTyped.newBuilder(keyCode)
-                .keyLocation(keyLocation)
-                .keyModifiers(keyModifiers(event))
-                .keyChar(keyChar)
-                .build()
-        )
-    }
-
     private fun keyPressed(event: KeyEvent) {
         val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
         val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
         val keyLocation = keyLocation(awtKeyEvent)
+        val modifiers = keyModifiers(event)
         val builder = KeyPressed.newBuilder(keyCode)
             .keyLocation(keyLocation)
-            .keyModifiers(keyModifiers(event))
+            .keyModifiers(modifiers)
 
-        val keyChar = awtKeyEvent.keyChar
+        var keyChar = awtKeyEvent.keyChar
+        if (isMac() && isMacAccessKey(keyCode, modifiers)) {
+            keyChar = KeyCodes.toAlphabeticChar(keyCode)
+        }
         if (keyChar != CHAR_UNDEFINED) {
             builder.keyChar(keyChar)
         }
-        widget.dispatch(builder.build())
+        val keyPressed = builder.build()
+        widget.dispatch(keyPressed)
+
+        // Fire the key typed event in the middle between the key pressed and key released events.
+        notifyKeyTyped(keyPressed)
+    }
+
+    private fun notifyKeyTyped(keyPressed: KeyPressed) {
+        widget.dispatch(
+            KeyTyped.newBuilder(keyPressed.keyCode())
+                .keyLocation(keyPressed.keyLocation())
+                .keyModifiers(keyPressed.keyModifiers())
+                .keyChar(keyPressed.keyChar())
+                .build()
+        )
     }
 
     private fun keyReleased(event: KeyEvent) {
