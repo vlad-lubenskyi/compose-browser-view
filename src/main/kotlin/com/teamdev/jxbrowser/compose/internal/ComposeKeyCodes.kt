@@ -27,15 +27,10 @@ internal class ComposeKeyCodes private constructor() {
         .add(ComposeKey.left(Key.MetaLeft), KeyCode.KEY_CODE_LCMD)
         .add(ComposeKey.right(Key.MetaRight), KeyCode.KEY_CODE_RCMD)
 
-        .add(ComposeKey.of(Key.Window), KeyCode.KEY_CODE_LWIN)
-        .add(ComposeKey.left(Key.Window), KeyCode.KEY_CODE_LWIN)
-        .add(ComposeKey.right(Key.Window), KeyCode.KEY_CODE_RWIN)
-
         .add(ComposeKey.of(Key.Enter), KeyCode.KEY_CODE_RETURN)
         .add(ComposeKey.of(Key.Backspace), KeyCode.KEY_CODE_BACK)
         .add(ComposeKey.of(Key.Tab), KeyCode.KEY_CODE_TAB)
         .add(ComposeKey.of(Key.Clear), KeyCode.KEY_CODE_CLEAR)
-        .add(ComposeKey.of(Key.MediaPause), KeyCode.KEY_CODE_PAUSE)
         .add(ComposeKey.of(Key.CapsLock), KeyCode.KEY_CODE_CAPITAL)
         .add(ComposeKey.of(Key.Escape), KeyCode.KEY_CODE_ESCAPE)
         .add(ComposeKey.of(Key.Spacebar), KeyCode.KEY_CODE_SPACE)
@@ -51,7 +46,6 @@ internal class ComposeKeyCodes private constructor() {
         .add(ComposeKey.of(Key.Minus), KeyCode.KEY_CODE_OEM_MINUS)
         .add(ComposeKey.of(Key.Period), KeyCode.KEY_CODE_OEM_PERIOD)
         .add(ComposeKey.of(Key.Slash), KeyCode.KEY_CODE_OEM_2)
-        .add(ComposeKey.of(Key.TvMediaContextMenu), KeyCode.KEY_CODE_APPS)
         .add(ComposeKey.of(Key.Zero), KeyCode.KEY_CODE_O)
         .add(ComposeKey.of(Key.One), KeyCode.KEY_CODE_1)
         .add(ComposeKey.of(Key.Two), KeyCode.KEY_CODE_2)
