@@ -31,10 +31,9 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
     private fun keyPressed(event: KeyEvent) {
         val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
         val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
-        val keyLocation = keyLocation(awtKeyEvent)
         val modifiers = keyModifiers(event)
         val builder = KeyPressed.newBuilder(keyCode)
-            .keyLocation(keyLocation)
+            .keyLocation(keyLocation(event))
             .keyModifiers(modifiers)
 
         var keyChar = awtKeyEvent.keyChar
@@ -62,19 +61,17 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
     }
 
     private fun keyReleased(event: KeyEvent) {
-        val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
         val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
-        val keyLocation = keyLocation(awtKeyEvent)
         widget.dispatch(
             KeyReleased.newBuilder(keyCode)
-                .keyLocation(keyLocation)
+                .keyLocation(keyLocation(event))
                 .keyModifiers(keyModifiers(event))
                 .build()
         )
     }
 
-    private fun keyLocation(e: java.awt.event.KeyEvent): KeyLocation {
-        return when (e.keyLocation) {
+    private fun keyLocation(e: KeyEvent): KeyLocation {
+        return when (e.key.nativeKeyLocation) {
             KEY_LOCATION_NUMPAD -> {
                 KeyLocation.NUMERIC_KEYPAD
             }
