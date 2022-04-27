@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2000-2022 TeamDev Ltd. All rights reserved.
+ * TeamDev PROPRIETARY and CONFIDENTIAL.
+ * Use is subject to license terms.
+ */
+
 package com.teamdev.jxbrowser.compose.internal
 
 import androidx.compose.ui.input.key.*
@@ -14,7 +20,6 @@ import com.teamdev.jxbrowser.ui.internal.KeyEvents.isMacAccessKey
 import java.awt.event.KeyEvent.*
 
 class KeyEventDispatcher(private val widget: BrowserWidget) {
-
     private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance()
 
     fun dispatch(event: KeyEvent) {
@@ -46,7 +51,9 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
         val keyPressed = builder.build()
         widget.dispatch(keyPressed)
 
-        // Fire the key typed event in the middle between the key pressed and key released events.
+        // Compose does not fire the key typed event, but Chromium requires it.
+        // So, we manually fire the key typed event in the middle between the key pressed and
+        // key released events.
         notifyKeyTyped(keyPressed)
     }
 

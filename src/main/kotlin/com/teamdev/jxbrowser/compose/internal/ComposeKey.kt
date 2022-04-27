@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2000-2022 TeamDev Ltd. All rights reserved.
+ * TeamDev PROPRIETARY and CONFIDENTIAL.
+ * Use is subject to license terms.
+ */
+
 package com.teamdev.jxbrowser.compose.internal
 
 import androidx.compose.ui.input.key.Key
@@ -11,8 +17,8 @@ import java.awt.event.KeyEvent
  */
 internal class ComposeKey private constructor(keyCode: Key, keyLocation: Int) :
     ToolkitKey<Key?, Int?>(keyCode, keyLocation) {
-    companion object {
 
+    companion object {
         fun of(keyCode: Key): ComposeKey {
             return ComposeKey(keyCode, KeyEvent.KEY_LOCATION_STANDARD)
         }
