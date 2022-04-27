@@ -1,4 +1,4 @@
-package com.teamdev.jxbrowser.compose/*
+package com.teamdev.jxbrowser.compose.internal/*
  * Copyright (c) 2000-2022 TeamDev Ltd. All rights reserved.
  * TeamDev PROPRIETARY and CONFIDENTIAL.
  * Use is subject to license terms.
@@ -15,7 +15,6 @@ import org.jetbrains.skia.ImageInfo
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferInt
 import java.nio.ByteBuffer
-import java.nio.IntBuffer
 
 
 class MemoryImage {

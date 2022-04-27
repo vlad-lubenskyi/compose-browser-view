@@ -4,7 +4,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.input.pointer.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
-import com.teamdev.jxbrowser.compose.LayoutListener.Companion.SCALE_FACTOR
+import com.teamdev.jxbrowser.compose.internal.LayoutListener.Companion.SCALE_FACTOR
 import com.teamdev.jxbrowser.os.Environment.isMac
 import com.teamdev.jxbrowser.ui.*
 import com.teamdev.jxbrowser.ui.event.*
