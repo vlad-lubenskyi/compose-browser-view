@@ -103,25 +103,25 @@ class BrowserView(browser: Browser) {
         widget.displayId(Display.primaryDisplay().id())
         return widget
     }
-}
 
-class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
-    private val memoryImage = MemoryImage()
+    private class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
+        private val memoryImage = MemoryImage()
 
-    override fun on(params: Paint.Request): Paint.Response? {
-        val request: PaintRequest = params.paintRequest
-        val viewSize: Size = request.viewSize
-        val dirtyRect: JxRect = request.dirtyRect
-        if (!memoryImage.validateDirtyRect(dirtyRect, viewSize)) {
+        override fun on(params: Paint.Request): Paint.Response? {
+            val request: PaintRequest = params.paintRequest
+            val viewSize: Size = request.viewSize
+            val dirtyRect: JxRect = request.dirtyRect
+            if (!memoryImage.validateDirtyRect(dirtyRect, viewSize)) {
+                return Paint.Response.newBuilder().build()
+            }
+            memoryImage.updatePixels(
+                viewSize,
+                dirtyRect,
+                request.memoryId
+            ) { updatedImage ->
+                image.value = updatedImage
+            }
             return Paint.Response.newBuilder().build()
         }
-        memoryImage.updatePixels(
-            viewSize,
-            dirtyRect,
-            request.memoryId
-        ) { updatedImage ->
-            image.value = updatedImage
-        }
-        return Paint.Response.newBuilder().build()
     }
 }
