@@ -37,10 +37,9 @@ internal class LayoutListener(private val widget: BrowserWidget) {
     }
 
     private fun updateBounds() {
-        widget.bounds(
-            Rect.of(location.x, location.y, size.width / 2, size.height / 2),
-            Rect.of(location.x, location.y, size.width / 2, size.height / 2)
-        )
+        val boundsInWindow = Rect.of(location.x, location.y, size.width / SCALE_FACTOR, size.height / SCALE_FACTOR)
+        val boundsInScreen = Rect.of(location.x, location.y, size.width / SCALE_FACTOR, size.height / SCALE_FACTOR)
+        widget.bounds(boundsInWindow, boundsInScreen)
     }
 
     companion object {

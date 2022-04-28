@@ -36,7 +36,6 @@ internal class MemoryImage {
         if (!validateDirtyRect(dirtyRect, viewSize)) {
             return
         }
-
         val asIntBuffer = buffer!!
         ToolkitLibrary.instance().updatePixelsBytes(
             memoryId.value, dirtyRect, viewSize, asIntBuffer.array()
@@ -50,7 +49,8 @@ internal class MemoryImage {
         val viewHeight = viewSize.height()
         val dirtyRectOrigin = dirtyRect.origin()
         val dirtyRectSize = dirtyRect.size()
-        return dirtyRectOrigin.x() <= viewWidth && dirtyRectOrigin.y() <= viewHeight
+        return dirtyRectOrigin.x() <= viewWidth
+                && dirtyRectOrigin.y() <= viewHeight
                 && dirtyRectOrigin.x() + dirtyRectSize.width() <= viewWidth
                 && dirtyRectOrigin.y() + dirtyRectSize.height() <= viewHeight
     }
