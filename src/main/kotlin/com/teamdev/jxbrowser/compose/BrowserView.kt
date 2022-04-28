@@ -42,8 +42,9 @@ import com.teamdev.jxbrowser.ui.Rect as JxRect
 
 /**
  * A widget that displays the content of the resources loaded in the [Browser]
- * instance associated with it. This widget can be embedded into Composable UI by calling
- * [composable] function.
+ * instance associated with it.
+ *
+ * This widget can be embedded into Composable context by calling [composable] function.
  */
 class BrowserView(browser: Browser) {
     private var image: MutableState<Image?> = mutableStateOf(null)
@@ -59,6 +60,11 @@ class BrowserView(browser: Browser) {
         keyDispatcher = KeyEventDispatcher(widget)
     }
 
+    /**
+     * Displays content loaded in the `Browser` instance.
+     *
+     * Use this function to display the browser widget as a separate Composable component.
+     */
     @Composable
     fun composable() {
         widget.show()

@@ -22,7 +22,7 @@ import java.awt.event.KeyEvent.*
 /**
  * Dispatches Compose key events to Chromium.
  */
-class KeyEventDispatcher(private val widget: BrowserWidget) {
+internal class KeyEventDispatcher(private val widget: BrowserWidget) {
     private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance()
 
     /**

@@ -21,7 +21,7 @@ import javax.swing.SwingUtilities.*
 /**
  * Dispatches Compose mouse events to Chromium.
  */
-class MouseEventDispatcher(private val widget: BrowserWidget) {
+internal class MouseEventDispatcher(private val widget: BrowserWidget) {
 
     /**
      * Dispatches the given mouse `event` to Chromium.

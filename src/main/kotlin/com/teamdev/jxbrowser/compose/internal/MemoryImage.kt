@@ -16,7 +16,7 @@ import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
 import java.nio.ByteBuffer
 
-class MemoryImage {
+internal class MemoryImage {
     private var width = 0
     private var height = 0
     private var buffer: ByteBuffer? = null

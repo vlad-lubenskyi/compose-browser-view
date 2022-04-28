@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.IntSize
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
 import com.teamdev.jxbrowser.ui.Rect
 
-class LayoutListener(private val widget: BrowserWidget) {
+internal class LayoutListener(private val widget: BrowserWidget) {
     private var size: IntSize = IntSize.Zero
     private var location: IntOffset = IntOffset.Zero
 
