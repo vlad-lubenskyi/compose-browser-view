@@ -18,8 +18,16 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import javax.swing.SwingUtilities.*
 
+/**
+ * Dispatches Compose mouse events to Chromium.
+ */
 class MouseEventDispatcher(private val widget: BrowserWidget) {
 
+    /**
+     * Dispatches the given mouse `event` to Chromium.
+     *
+     * @param event a Compose mouse event
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     fun dispatch(event: PointerEvent) {
         when (event.type) {

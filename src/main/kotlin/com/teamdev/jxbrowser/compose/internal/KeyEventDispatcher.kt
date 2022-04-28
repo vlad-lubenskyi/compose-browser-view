@@ -19,9 +19,17 @@ import com.teamdev.jxbrowser.ui.internal.KeyCodes
 import com.teamdev.jxbrowser.ui.internal.KeyEvents.isMacAccessKey
 import java.awt.event.KeyEvent.*
 
+/**
+ * Dispatches Compose key events to Chromium.
+ */
 class KeyEventDispatcher(private val widget: BrowserWidget) {
     private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance()
 
+    /**
+     * Dispatches the given key `event` to Chromium.
+     *
+     * @param event a Compose key event
+     */
     fun dispatch(event: KeyEvent) {
         when (event.type) {
             KeyEventType.KeyDown -> {
@@ -77,8 +85,8 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
         )
     }
 
-    private fun keyLocation(e: KeyEvent): KeyLocation {
-        return when (e.key.nativeKeyLocation) {
+    private fun keyLocation(event: KeyEvent): KeyLocation {
+        return when (event.key.nativeKeyLocation) {
             KEY_LOCATION_NUMPAD -> {
                 KeyLocation.NUMERIC_KEYPAD
             }

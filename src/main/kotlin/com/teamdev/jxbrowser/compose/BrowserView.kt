@@ -40,6 +40,11 @@ import com.teamdev.jxbrowser.ui.Size
 import org.jetbrains.skia.Image
 import com.teamdev.jxbrowser.ui.Rect as JxRect
 
+/**
+ * A widget that displays the content of the resources loaded in the [Browser]
+ * instance associated with it. This widget can be embedded into Composable UI by calling
+ * [composable] function.
+ */
 class BrowserView(browser: Browser) {
     private var image: MutableState<Image?> = mutableStateOf(null)
     private val widget: BrowserWidget

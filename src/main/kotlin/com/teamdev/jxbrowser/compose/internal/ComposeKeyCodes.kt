@@ -143,6 +143,9 @@ internal class ComposeKeyCodes private constructor() {
         .build()
 
     companion object {
+        /**
+         * Obtains [ToolkitKeyCodes] for Compose.
+         */
         fun instance(): ToolkitKeyCodes<ComposeKey> {
             return Singleton.INSTANCE.value.codes
         }
