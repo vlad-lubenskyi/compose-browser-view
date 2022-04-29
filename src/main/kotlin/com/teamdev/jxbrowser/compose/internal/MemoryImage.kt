@@ -16,6 +16,9 @@ import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
 import java.nio.ByteBuffer
 
+/**
+ * A helper class that manages Skija Images using pixels received from Chromium.
+ */
 internal class MemoryImage {
     private var width = 0
     private var height = 0
@@ -31,6 +34,9 @@ internal class MemoryImage {
         }
     }
 
+    /**
+     * Updates pixels and performs repaint.
+     */
     fun updatePixels(viewSize: Size, dirtyRect: Rect, memoryId: MemoryId, repaintCallback: (Image) -> Unit) {
         initialize(viewSize)
         if (!validateDirtyRect(dirtyRect, viewSize)) {
@@ -44,6 +50,9 @@ internal class MemoryImage {
         repaintCallback.invoke(skiaImage)
     }
 
+    /**
+     * Performs dirty rect validation.
+     */
     fun validateDirtyRect(dirtyRect: Rect, viewSize: Size): Boolean {
         val viewWidth = viewSize.width()
         val viewHeight = viewSize.height()

@@ -13,10 +13,16 @@ import androidx.compose.ui.unit.IntSize
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
 import com.teamdev.jxbrowser.ui.Rect
 
+/**
+ * A listener for receiving layout change events.
+ */
 internal class LayoutListener(private val widget: BrowserWidget) {
     private var size: IntSize = IntSize.Zero
     private var location: IntOffset = IntOffset.Zero
 
+    /**
+     * Called when the layout bounds of a view change due to layout processing.
+     */
     fun onLayout(): MeasureScope.(Measurable, Constraints) -> MeasureResult {
         return { measurable, constraints ->
             val placeable = measurable.measure(constraints)
@@ -28,6 +34,9 @@ internal class LayoutListener(private val widget: BrowserWidget) {
         }
     }
 
+    /**
+     * Called when the position of the content has changed.
+     */
     fun onPositioned(coordinates: LayoutCoordinates) {
         val positionInRoot = coordinates.positionInRoot()
         location = IntOffset(
