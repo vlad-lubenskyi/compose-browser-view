@@ -138,14 +138,6 @@ internal class ComposeKeyCodes private constructor() {
         .build()
 
     companion object {
-        fun instance(): ToolkitKeyCodes<ComposeKey> {
-            return Singleton.INSTANCE.value.codes
-        }
-    }
-
-    private enum class Singleton {
-        INSTANCE;
-
-        val value = ComposeKeyCodes()
+        val instance = ComposeKeyCodes().codes
     }
 }

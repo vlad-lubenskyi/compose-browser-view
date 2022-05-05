@@ -15,7 +15,7 @@ import java.awt.event.KeyEvent.*
 
 class KeyEventDispatcher(private val widget: BrowserWidget) {
 
-    private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance()
+    private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance
 
     fun dispatch(event: KeyEvent) {
         when (event.type) {
