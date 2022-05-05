@@ -47,7 +47,9 @@ class KeyEventDispatcher(private val widget: BrowserWidget) {
         widget.dispatch(keyPressed)
 
         // Fire the key typed event in the middle between the key pressed and key released events.
-        notifyKeyTyped(keyPressed)
+        if (keyChar != CHAR_UNDEFINED) {
+            notifyKeyTyped(keyPressed)
+        }
     }
 
     private fun notifyKeyTyped(keyPressed: KeyPressed) {
