@@ -8,7 +8,9 @@ package com.teamdev.jxbrowser.compose
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -91,6 +93,12 @@ class BrowserView(browser: Browser) {
                     if (it.hasFocus) widget.focus() else widget.unfocus()
                 }
                 .focusable()
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    focusRequester.requestFocus()
+                }
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawIntoCanvas { canvas ->
@@ -98,7 +106,6 @@ class BrowserView(browser: Browser) {
                         canvas.nativeCanvas.drawImage(it, 0f, 0f)
                     }
                 }
-                focusRequester.requestFocus()
             }
         }
     }

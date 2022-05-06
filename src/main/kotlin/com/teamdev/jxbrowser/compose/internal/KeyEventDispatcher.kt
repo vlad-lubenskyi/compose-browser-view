@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent.*
  * Dispatches Compose key events to Chromium.
  */
 internal class KeyEventDispatcher(private val widget: BrowserWidget) {
-    private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance()
+    private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance
 
     /**
      * Dispatches the given key `event` to Chromium.
@@ -62,7 +62,9 @@ internal class KeyEventDispatcher(private val widget: BrowserWidget) {
         // Compose does not fire the key typed event, but Chromium requires it.
         // So, we manually fire the key typed event in the middle between the key pressed and
         // key released events.
-        notifyKeyTyped(keyPressed)
+        if (keyChar != CHAR_UNDEFINED) {
+            notifyKeyTyped(keyPressed)
+        }
     }
 
     private fun notifyKeyTyped(keyPressed: KeyPressed) {
