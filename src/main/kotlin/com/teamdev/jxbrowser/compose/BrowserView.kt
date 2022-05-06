@@ -63,9 +63,7 @@ class BrowserView(browser: Browser) {
     }
 
     /**
-     * Displays content loaded in the `Browser` instance.
-     *
-     * Use this function to display the browser widget as a separate Composable component.
+     * Adds a browser widget as a separate composable component.
      */
     @Composable
     fun composable() {
