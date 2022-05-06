@@ -1,6 +1,6 @@
 # BrowserView for Compose Desktop
 
-A Composable UI component that displays content loaded
+A component for Compose Desktop that displays content loaded
 in the Chromium-based browser.
 
 Uses [JxBrowser](https://www.teamdev.com/jxbrowser)
@@ -10,8 +10,8 @@ to integrate a web browser and communicate with it.
 
 ## Usage
 
-To display component in Composable context use `BrowserView.composable()`
-function.
+Use `BrowserView.composable()` function to add a component
+and display browser content.
 
 ```kotlin
 @Composable
@@ -21,8 +21,9 @@ fun App(browser: Browser) {
 }
 ```
 
-Create [`Engine`](https://jxbrowser-support.teamdev.com/javadoc/7.24.4/com/teamdev/jxbrowser/engine/Engine.html)
-and [`Browser`](https://jxbrowser-support.teamdev.com/javadoc/7.24.4/com/teamdev/jxbrowser/browser/Browser.html) instances.
+You need to create [`Engine`](https://jxbrowser-support.teamdev.com/javadoc/7.24.4/com/teamdev/jxbrowser/engine/Engine.html)
+and [`Browser`](https://jxbrowser-support.teamdev.com/javadoc/7.24.4/com/teamdev/jxbrowser/browser/Browser.html)
+to set up the web browser control.
 
 ```kotlin
 fun main() = application {
