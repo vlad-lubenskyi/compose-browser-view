@@ -13,23 +13,17 @@ to integrate a web browser and communicate with it.
 Use `BrowserView.composable()` function to add a component:
 
 ```kotlin
-@Composable
-fun App(browser: Browser) {
-    BrowserView(browser).composable()
-    browser.navigation().loadUrl("https://google.com")
-}
-```
-
-You need to create [`Engine`](https://jxbrowser-support.teamdev.com/javadoc/7.24.4/com/teamdev/jxbrowser/engine/Engine.html)
-and [`Browser`](https://jxbrowser-support.teamdev.com/javadoc/7.24.4/com/teamdev/jxbrowser/browser/Browser.html)
-to set up the web browser control.
-
-```kotlin
 fun main() = application {
-    val engine = Engine.newInstance(RenderingMode.OFF_SCREEN)
+
+    // Initialize Chromium.
+    val engine = Engine.newInstance(OFF_SCREEN)
+
+    // Create a Browser instance.
     val browser = engine.newBrowser()
+
     Window(onCloseRequest = ::exitApplication) {
-        App(browser)
+        BrowserView(browser).composable()
     }
+    browser.navigation().loadUrl("https://google.com")
 }
 ```
