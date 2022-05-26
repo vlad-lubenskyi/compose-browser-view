@@ -11,7 +11,7 @@ Use `BrowserView.composable()` function to add a component:
 ```kotlin
 fun main() = application {
 
-    // Start Chromium process.
+    // Start the Chromium process.
     val engine = Engine.newInstance(OFF_SCREEN)
 
     // Create a browser whose content will be displayed.
