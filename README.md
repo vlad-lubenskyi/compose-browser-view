@@ -6,8 +6,6 @@ in the Chromium-based browser.
 Uses [JxBrowser](https://www.teamdev.com/jxbrowser)
 to integrate a web browser and communicate with it.
 
-## Setup & Run
-
 ## Usage
 
 Use `BrowserView.composable()` function to add a component:
@@ -15,10 +13,10 @@ Use `BrowserView.composable()` function to add a component:
 ```kotlin
 fun main() = application {
 
-    // Initialize Chromium.
+    // Start Chromium process.
     val engine = Engine.newInstance(OFF_SCREEN)
 
-    // Create a Browser instance.
+    // Create a browser whose content will be displayed.
     val browser = engine.newBrowser()
 
     Window(onCloseRequest = ::exitApplication) {
