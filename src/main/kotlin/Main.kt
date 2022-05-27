@@ -1,33 +1,58 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.teamdev.jxbrowser.browser.Browser
 import com.teamdev.jxbrowser.compose.BrowserView
 import com.teamdev.jxbrowser.engine.Engine
-import com.teamdev.jxbrowser.engine.EngineOptions
 import com.teamdev.jxbrowser.engine.RenderingMode.OFF_SCREEN
-import com.teamdev.jxbrowser.logging.Level
-import com.teamdev.jxbrowser.logging.Logger
-import java.nio.file.Paths
-
-@Composable
-@Preview
-fun App(browser: Browser) {
-    Logger.level(Level.DEBUG)
-    BrowserView(browser).composable()
-    browser.navigation().loadUrl("https://google.com")
-}
 
 fun main() = application {
-    val engine = Engine.newInstance(
-        EngineOptions.newBuilder(OFF_SCREEN)
-            .chromiumDir(Paths.get("/Users/vladyslav.lubenskyi/dev/BrowserCore/chromium/src/out/Release"))
-            .build()
-    )
-    Window(onCloseRequest = ::exitApplication) {
-        App(engine.newBrowser())
+    val engine = Engine.newInstance(OFF_SCREEN)
+    val browser = engine.newBrowser()
+
+    val startUrl = "https://www.google.com"
+    val mutableUrl = remember { mutableStateOf(startUrl) }
+
+    Window(onCloseRequest = ::exitApplication, title = "BrowserView in Compose Desktop") {
+        Column {
+            AddressBar(browser, mutableUrl)
+            BrowserView(browser).composable()
+        }
+    }
+
+    browser.navigation().loadUrl(startUrl)
+}
+
+@Composable
+private fun AddressBar(browser: Browser, url: MutableState<String>) {
+    Row(
+        modifier = Modifier.height(40.dp).border(1.dp, Color.DarkGray)
+    ) {
+        BasicTextField(
+            value = url.value,
+            onValueChange = {
+                url.value = it
+            },
+            modifier = Modifier.weight(1f).padding(start = 10.dp, top = 10.dp),
+            singleLine = true
+        )
+        Button(
+            modifier = Modifier.padding(3.dp),
+            onClick = { browser.navigation().loadUrl(url.value) }
+        ) {
+            Text(text = "Go!")
+        }
     }
 }
