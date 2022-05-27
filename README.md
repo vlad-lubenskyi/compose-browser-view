@@ -14,7 +14,7 @@ fun main() = application {
     // Start the Chromium process.
     val engine = Engine.newInstance(OFF_SCREEN)
 
-    // Create a browser whose content will be displayed.
+    // Create a browser to display its content.
     val browser = engine.newBrowser()
 
     Window(onCloseRequest = ::exitApplication) {
