@@ -13,10 +13,14 @@ import com.teamdev.jxbrowser.ui.KeyCode
 
 /**
  * A mapping of Compose key codes to [KeyCode]'s.
+ *
+ * The implementation of [Key] in Compose Desktop is part of an experimental API,
+ * so we add the [OptIn] annotation to allow this API to be used.
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal class ComposeKeyCodes private constructor() {
-    private val codes: ToolkitKeyCodes<ComposeKey> = ToolkitKeyCodes.newBuilder<ComposeKey>()
+internal object ComposeKeyCodes {
+
+    internal val codes: ToolkitKeyCodes<ComposeKey> = ToolkitKeyCodes.newBuilder<ComposeKey>()
         .add(ComposeKey.of(Key.ShiftLeft), KeyCode.KEY_CODE_SHIFT)
         .add(ComposeKey.left(Key.ShiftLeft), KeyCode.KEY_CODE_LSHIFT)
         .add(ComposeKey.right(Key.ShiftRight), KeyCode.KEY_CODE_RSHIFT)
@@ -141,8 +145,4 @@ internal class ComposeKeyCodes private constructor() {
         .add(ComposeKey.numpad(Key.MoveEnd), KeyCode.KEY_CODE_END)
         .add(ComposeKey.numpad(Key.MoveHome), KeyCode.KEY_CODE_HOME)
         .build()
-
-    companion object {
-        val instance = ComposeKeyCodes().codes
-    }
 }

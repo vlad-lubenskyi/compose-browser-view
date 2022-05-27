@@ -10,6 +10,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyLocation
 import com.teamdev.jxbrowser.internal.ui.ToolkitKey
+import com.teamdev.jxbrowser.ui.KeyCode
 import java.awt.event.KeyEvent
 
 /**
@@ -19,6 +20,7 @@ internal class ComposeKey private constructor(keyCode: Key, keyLocation: Int) :
     ToolkitKey<Key?, Int?>(keyCode, keyLocation) {
 
     companion object {
+
         /**
          * Creates a key with a code and [standard][KeyEvent.KEY_LOCATION_STANDARD] location.
          *
@@ -73,5 +75,12 @@ internal class ComposeKey private constructor(keyCode: Key, keyLocation: Int) :
         fun numpad(keyCode: Key): ComposeKey {
             return of(keyCode, KeyEvent.KEY_LOCATION_NUMPAD)
         }
+    }
+
+    /**
+     * Converts this [ComposeKey] to the corresponding Chromium [keycode][KeyCode].
+     */
+    fun chromiumCode(): KeyCode {
+        return ComposeKeyCodes.codes.toKeyCode(this)
     }
 }

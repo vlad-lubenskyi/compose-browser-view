@@ -8,7 +8,6 @@ package com.teamdev.jxbrowser.compose.internal
 
 import androidx.compose.ui.input.key.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
-import com.teamdev.jxbrowser.internal.ui.ToolkitKeyCodes
 import com.teamdev.jxbrowser.os.Environment.isMac
 import com.teamdev.jxbrowser.ui.KeyLocation
 import com.teamdev.jxbrowser.ui.KeyModifiers
@@ -23,7 +22,6 @@ import java.awt.event.KeyEvent.*
  * Dispatches Compose key events to Chromium.
  */
 internal class KeyEventDispatcher(private val widget: BrowserWidget) {
-    private val keyCodes: ToolkitKeyCodes<ComposeKey> = ComposeKeyCodes.instance
 
     /**
      * Dispatches the given key `event` to Chromium.
@@ -43,7 +41,7 @@ internal class KeyEventDispatcher(private val widget: BrowserWidget) {
 
     private fun keyPressed(event: KeyEvent) {
         val awtKeyEvent = event.nativeKeyEvent as java.awt.event.KeyEvent
-        val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
+        val keyCode = ComposeKey.from(event).chromiumCode()
         val modifiers = keyModifiers(event)
         val builder = KeyPressed.newBuilder(keyCode)
             .keyLocation(keyLocation(event))
@@ -78,7 +76,7 @@ internal class KeyEventDispatcher(private val widget: BrowserWidget) {
     }
 
     private fun keyReleased(event: KeyEvent) {
-        val keyCode = keyCodes.toKeyCode(ComposeKey.from(event))
+        val keyCode = ComposeKey.from(event).chromiumCode()
         widget.dispatch(
             KeyReleased.newBuilder(keyCode)
                 .keyLocation(keyLocation(event))

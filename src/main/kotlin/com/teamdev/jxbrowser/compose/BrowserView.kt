@@ -51,15 +51,19 @@ import com.teamdev.jxbrowser.ui.Rect as JxRect
 class BrowserView(browser: Browser) {
     private var image: MutableState<Image?> = mutableStateOf(null)
     private val widget: BrowserWidget
+    private val keyDispatcher: KeyEventDispatcher
     private val layoutListener: LayoutListener
     private val mouseDispatcher: MouseEventDispatcher
-    private val keyDispatcher: KeyEventDispatcher
 
     init {
         widget = createBrowserWidget(browser)
+        keyDispatcher = KeyEventDispatcher(widget)
         layoutListener = LayoutListener(widget)
         mouseDispatcher = MouseEventDispatcher(widget)
-        keyDispatcher = KeyEventDispatcher(widget)
+    }
+
+    companion object {
+        private const val STOP_PROPAGATION = true
     }
 
     /**
@@ -85,7 +89,7 @@ class BrowserView(browser: Browser) {
                 }
                 .onKeyEvent {
                     keyDispatcher.dispatch(it)
-                    true
+                    STOP_PROPAGATION
                 }
                 .onFocusEvent {
                     if (it.hasFocus) widget.focus() else widget.unfocus()
