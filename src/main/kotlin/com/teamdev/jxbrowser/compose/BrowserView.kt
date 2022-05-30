@@ -3,7 +3,6 @@ package com.teamdev.jxbrowser.compose
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -77,7 +76,8 @@ class BrowserView(browser: Browser) {
                         widget.unfocus()
                     }
                 }
-                .focusable()
+                // We need to focus the component when capturing key events,
+                // so we programmatically request focus on click.
                 .clickable(
                     interactionSource = MutableInteractionSource(),
                     indication = null
