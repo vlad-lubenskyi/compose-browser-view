@@ -49,12 +49,12 @@ private val image: MutableState<Image?> = mutableStateOf(null)
 fun BrowserView(browser: Browser) {
     val widget = createBrowserWidget(browser)
     val keyDispatcher = KeyEventDispatcher(widget)
+    val focusRequester = FocusRequester()
     val layoutListener = LayoutListener(widget)
     val mouseDispatcher = MouseEventDispatcher(widget)
 
     widget.show()
 
-    val focusRequester = FocusRequester()
     Box(
         modifier = Modifier.background(color = Color.White)
             .fillMaxSize()
