@@ -76,12 +76,12 @@ class BrowserView(browser: Browser) {
                         widget.unfocus()
                     }
                 }
-                // We need to focus the component when capturing key events,
-                // so we programmatically request focus on click.
                 .clickable(
                     interactionSource = MutableInteractionSource(),
                     indication = null
                 ) {
+                    // We need to focus the component when capturing key events,
+                    // so we programmatically request focus on click.
                     focusRequester.requestFocus()
                 }
         ) {
