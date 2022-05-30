@@ -113,12 +113,6 @@ class BrowserView(browser: Browser) {
         return widget
     }
 
-    companion object {
-        private const val STOP_PROPAGATION = true
-    }
-}
-
-
     private class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
         private val memoryImage = MemoryImage()
 
@@ -138,5 +132,9 @@ class BrowserView(browser: Browser) {
             }
             return Paint.Response.newBuilder().build()
         }
+    }
+
+    companion object {
+        private const val STOP_PROPAGATION = true
     }
 }
