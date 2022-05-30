@@ -12,7 +12,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -35,9 +37,7 @@ import com.teamdev.jxbrowser.compose.internal.LayoutListener
 import com.teamdev.jxbrowser.compose.internal.MemoryImage
 import com.teamdev.jxbrowser.compose.internal.MouseEventDispatcher
 import com.teamdev.jxbrowser.internal.Display
-import com.teamdev.jxbrowser.ui.Size
 import org.jetbrains.skia.Image
-import com.teamdev.jxbrowser.ui.Rect as JxRect
 
 private const val STOP_PROPAGATION = true
 private val image: MutableState<Image?> = mutableStateOf(null)
@@ -106,14 +106,9 @@ private class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
 
     override fun on(params: Paint.Request): Paint.Response? {
         val request: PaintRequest = params.paintRequest
-        val viewSize: Size = request.viewSize
-        val dirtyRect: JxRect = request.dirtyRect
-        if (!memoryImage.validateDirtyRect(dirtyRect, viewSize)) {
-            return Paint.Response.newBuilder().build()
-        }
         memoryImage.updatePixels(
-            viewSize,
-            dirtyRect,
+            request.viewSize,
+            request.dirtyRect,
             request.memoryId
         ) { updatedImage ->
             image.value = updatedImage

@@ -50,10 +50,7 @@ internal class MemoryImage {
         repaintCallback.invoke(skiaImage)
     }
 
-    /**
-     * Performs dirty rect validation.
-     */
-    fun validateDirtyRect(dirtyRect: Rect, viewSize: Size): Boolean {
+    private fun validateDirtyRect(dirtyRect: Rect, viewSize: Size): Boolean {
         val viewWidth = viewSize.width()
         val viewHeight = viewSize.height()
         val dirtyRectOrigin = dirtyRect.origin()
