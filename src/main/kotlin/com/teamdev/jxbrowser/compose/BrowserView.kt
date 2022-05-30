@@ -48,10 +48,6 @@ class BrowserView(browser: Browser) {
         mouseDispatcher = MouseEventDispatcher(widget)
     }
 
-    companion object {
-        private const val STOP_PROPAGATION = true
-    }
-
     @Composable
     fun composable() {
         widget.show()
@@ -97,6 +93,10 @@ class BrowserView(browser: Browser) {
                 }
             }
         }
+    }
+
+    companion object {
+        private const val STOP_PROPAGATION = true
     }
 }
 
