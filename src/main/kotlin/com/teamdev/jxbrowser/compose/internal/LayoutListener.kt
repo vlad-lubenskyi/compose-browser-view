@@ -14,14 +14,14 @@ import com.teamdev.jxbrowser.browser.internal.BrowserWidget
 import com.teamdev.jxbrowser.ui.Rect
 
 /**
- * A listener for receiving layout change events.
+ * A layout change listener that adjusts the size and location of the browser.
  */
 internal class LayoutListener(private val widget: BrowserWidget) {
     private var size: IntSize = IntSize.Zero
     private var location: IntOffset = IntOffset.Zero
 
     /**
-     * Called when the layout bounds of a view change due to layout processing.
+     * Called when bounds of the browser view change.
      */
     fun onLayout(): MeasureScope.(Measurable, Constraints) -> MeasureResult {
         return { measurable, constraints ->
@@ -35,7 +35,7 @@ internal class LayoutListener(private val widget: BrowserWidget) {
     }
 
     /**
-     * Called when the position of the content has changed.
+     * Called when the position of the browser has changed.
      */
     fun onPositioned(coordinates: LayoutCoordinates) {
         val positionInRoot = coordinates.positionInRoot()
@@ -46,12 +46,8 @@ internal class LayoutListener(private val widget: BrowserWidget) {
     }
 
     private fun updateBounds() {
-        val boundsInWindow = Rect.of(location.x, location.y, size.width / SCALE_FACTOR, size.height / SCALE_FACTOR)
-        val boundsInScreen = Rect.of(location.x, location.y, size.width / SCALE_FACTOR, size.height / SCALE_FACTOR)
+        val boundsInWindow = Rect.of(location.x, location.y, size.width / ScaleFactor.value, size.height / ScaleFactor.value)
+        val boundsInScreen = Rect.of(location.x, location.y, size.width / ScaleFactor.value, size.height / ScaleFactor.value)
         widget.bounds(boundsInWindow, boundsInScreen)
-    }
-
-    companion object {
-        const val SCALE_FACTOR = 2
     }
 }

@@ -40,8 +40,7 @@ import org.jetbrains.skia.Image
 import com.teamdev.jxbrowser.ui.Rect as JxRect
 
 /**
- * A widget that displays the content of the resources loaded in the [Browser]
- * instance associated with it.
+ * A widget that displays the content of the [Browser].
  *
  * This widget can be embedded into Composable context by calling [composable] function.
  */

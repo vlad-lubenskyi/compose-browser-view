@@ -58,7 +58,7 @@ internal class KeyEventDispatcher(private val widget: BrowserWidget) {
         widget.dispatch(keyPressed)
 
         // Compose does not fire the key typed event, but Chromium requires it.
-        // So, we manually fire the key typed event in the middle between the key pressed and
+        // So, we fire the key typed event manually in between the key pressed and
         // key released events.
         if (keyChar != CHAR_UNDEFINED) {
             notifyKeyTyped(keyPressed)

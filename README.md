@@ -4,7 +4,7 @@ A Compose component that displays content loaded in the Chromium-based browser.
 
 Uses [JxBrowser](https://www.teamdev.com/jxbrowser) to integrate a web browser and communicate with it.
 
-![app-screenshot](/img/app-screenshot.png?raw=true)
+![app-screenshot](/img/app-screenshot.png?raw=true "JxBrowser in Compose Desktop")
 
 ## Usage
 
@@ -16,7 +16,7 @@ fun main() = application {
     // Start the Chromium process.
     val engine = Engine.newInstance(OFF_SCREEN)
 
-    // Create a browser to display its content.
+    // Create a browser.
     val browser = engine.newBrowser()
 
     Window(onCloseRequest = ::exitApplication) {

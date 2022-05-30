@@ -10,7 +10,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.input.pointer.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
-import com.teamdev.jxbrowser.compose.internal.LayoutListener.Companion.SCALE_FACTOR
 import com.teamdev.jxbrowser.os.Environment.isMac
 import com.teamdev.jxbrowser.ui.*
 import com.teamdev.jxbrowser.ui.event.*
@@ -185,7 +184,7 @@ internal class MouseEventDispatcher(private val widget: BrowserWidget) {
         val position = event.changes.first().position
         val x = position.x.toInt()
         val y = position.y.toInt()
-        return Point.of(x / SCALE_FACTOR, y / SCALE_FACTOR)
+        return Point.of(x / ScaleFactor.value, y / ScaleFactor.value)
     }
 
     private fun screenPoint(event: PointerEvent): Point {

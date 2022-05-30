@@ -17,7 +17,7 @@ import org.jetbrains.skia.ImageInfo
 import java.nio.ByteBuffer
 
 /**
- * A helper class that manages Skija Images using pixels received from Chromium.
+ * A pixel buffer to be rendered by Compose.
  */
 internal class MemoryImage {
     private var width = 0
@@ -35,7 +35,7 @@ internal class MemoryImage {
     }
 
     /**
-     * Updates pixels and performs repaint.
+     * Updates the pixels in the buffer.
      */
     fun updatePixels(viewSize: Size, dirtyRect: Rect, memoryId: MemoryId, repaintCallback: (Image) -> Unit) {
         initialize(viewSize)
@@ -46,7 +46,7 @@ internal class MemoryImage {
         ToolkitLibrary.instance().updatePixelsBytes(
             memoryId.value, dirtyRect, viewSize, asIntBuffer.array()
         )
-        val skiaImage = convertToSkijaImage(asIntBuffer.array(), width, height)
+        val skiaImage = createSkijaImage(asIntBuffer.array(), width, height)
         repaintCallback.invoke(skiaImage)
     }
 
@@ -64,7 +64,7 @@ internal class MemoryImage {
                 && dirtyRectOrigin.y() + dirtyRectSize.height() <= viewHeight
     }
 
-    private fun convertToSkijaImage(bytes: ByteArray, width: Int, height: Int): Image {
+    private fun createSkijaImage(bytes: ByteArray, width: Int, height: Int): Image {
         val imageInfo = ImageInfo(width, height, ColorType.BGRA_8888, ColorAlphaType.PREMUL)
         return Image.makeRaster(imageInfo, bytes, width * 4)
     }
