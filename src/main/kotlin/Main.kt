@@ -29,7 +29,7 @@ fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "JxBrowser in Compose Desktop") {
         Column {
             AddressBar(browser, mutableUrl)
-            BrowserView(browser).composable()
+            BrowserView(browser)
         }
     }
 

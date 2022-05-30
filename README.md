@@ -8,7 +8,7 @@ Uses [JxBrowser](https://www.teamdev.com/jxbrowser) to integrate a web browser a
 
 ## Usage
 
-Use `BrowserView.composable()` function to add a component:
+Use `BrowserView(browser)` function to add a component:
 
 ```kotlin
 fun main() = application {
@@ -20,7 +20,7 @@ fun main() = application {
     val browser = engine.newBrowser()
 
     Window(onCloseRequest = ::exitApplication) {
-        BrowserView(browser).composable()
+        BrowserView(browser)
     }
     browser.navigation().loadUrl("https://google.com")
 }

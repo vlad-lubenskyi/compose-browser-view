@@ -39,101 +39,85 @@ import com.teamdev.jxbrowser.ui.Size
 import org.jetbrains.skia.Image
 import com.teamdev.jxbrowser.ui.Rect as JxRect
 
+private const val STOP_PROPAGATION = true
+private val image: MutableState<Image?> = mutableStateOf(null)
+
 /**
- * A widget that displays the content of the [Browser].
- *
- * This widget can be embedded into Composable context by calling [composable] function.
+ * Adds a widget that displays the content of the [Browser].
  */
-class BrowserView(browser: Browser) {
-    private var image: MutableState<Image?> = mutableStateOf(null)
-    private val widget: BrowserWidget
-    private val keyDispatcher: KeyEventDispatcher
-    private val layoutListener: LayoutListener
-    private val mouseDispatcher: MouseEventDispatcher
+@Composable
+fun BrowserView(browser: Browser) {
+    val widget = createBrowserWidget(browser)
+    val keyDispatcher = KeyEventDispatcher(widget)
+    val layoutListener = LayoutListener(widget)
+    val mouseDispatcher = MouseEventDispatcher(widget)
 
-    init {
-        widget = createBrowserWidget(browser)
-        keyDispatcher = KeyEventDispatcher(widget)
-        layoutListener = LayoutListener(widget)
-        mouseDispatcher = MouseEventDispatcher(widget)
-    }
+    widget.show()
 
-    /**
-     * Adds a browser widget as a separate composable component.
-     */
-    @Composable
-    fun composable() {
-        widget.show()
-
-        val focusRequester = FocusRequester()
-        Box(
-            modifier = Modifier.background(color = Color.White)
-                .fillMaxSize()
-                .layout(layoutListener.onLayout())
-                .focusRequester(focusRequester)
-                .onGloballyPositioned(layoutListener::onPositioned)
-                .pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            mouseDispatcher.dispatch(awaitPointerEvent())
-                        }
+    val focusRequester = FocusRequester()
+    Box(
+        modifier = Modifier.background(color = Color.White)
+            .fillMaxSize()
+            .layout(layoutListener.onLayout())
+            .focusRequester(focusRequester)
+            .onGloballyPositioned(layoutListener::onPositioned)
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        mouseDispatcher.dispatch(awaitPointerEvent())
                     }
                 }
-                .onKeyEvent {
-                    keyDispatcher.dispatch(it)
-                    STOP_PROPAGATION
-                }
-                .onFocusEvent {
-                    if (it.hasFocus) widget.focus() else widget.unfocus()
-                }
-                .clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = null
-                ) {
-                    // We need to focus the component when capturing key events,
-                    // so we programmatically request focus on click.
-                    focusRequester.requestFocus()
-                }
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                drawIntoCanvas { canvas ->
-                    image.value?.let {
-                        canvas.nativeCanvas.drawImage(it, 0f, 0f)
-                    }
+            }
+            .onKeyEvent {
+                keyDispatcher.dispatch(it)
+                STOP_PROPAGATION
+            }
+            .onFocusEvent {
+                if (it.hasFocus) widget.focus() else widget.unfocus()
+            }
+            .clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = null
+            ) {
+                // We need to focus the component when capturing key events,
+                // so we programmatically request focus on click.
+                focusRequester.requestFocus()
+            }
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawIntoCanvas { canvas ->
+                image.value?.let {
+                    canvas.nativeCanvas.drawImage(it, 0f, 0f)
                 }
             }
         }
     }
+}
 
-    private fun createBrowserWidget(browser: Browser): BrowserWidget {
-        val widget = (browser as BrowserImpl).widget()
-        widget.set(PaintCallback::class.java, OnPaint(image))
-        widget.displayId(Display.primaryDisplay().id())
-        return widget
-    }
+private fun createBrowserWidget(browser: Browser): BrowserWidget {
+    val widget = (browser as BrowserImpl).widget()
+    widget.set(PaintCallback::class.java, OnPaint(image))
+    widget.displayId(Display.primaryDisplay().id())
+    return widget
+}
 
-    private class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
-        private val memoryImage = MemoryImage()
+private class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
+    private val memoryImage = MemoryImage()
 
-        override fun on(params: Paint.Request): Paint.Response? {
-            val request: PaintRequest = params.paintRequest
-            val viewSize: Size = request.viewSize
-            val dirtyRect: JxRect = request.dirtyRect
-            if (!memoryImage.validateDirtyRect(dirtyRect, viewSize)) {
-                return Paint.Response.newBuilder().build()
-            }
-            memoryImage.updatePixels(
-                viewSize,
-                dirtyRect,
-                request.memoryId
-            ) { updatedImage ->
-                image.value = updatedImage
-            }
+    override fun on(params: Paint.Request): Paint.Response? {
+        val request: PaintRequest = params.paintRequest
+        val viewSize: Size = request.viewSize
+        val dirtyRect: JxRect = request.dirtyRect
+        if (!memoryImage.validateDirtyRect(dirtyRect, viewSize)) {
             return Paint.Response.newBuilder().build()
         }
-    }
-
-    companion object {
-        private const val STOP_PROPAGATION = true
+        memoryImage.updatePixels(
+            viewSize,
+            dirtyRect,
+            request.memoryId
+        ) { updatedImage ->
+            image.value = updatedImage
+        }
+        return Paint.Response.newBuilder().build()
     }
 }
