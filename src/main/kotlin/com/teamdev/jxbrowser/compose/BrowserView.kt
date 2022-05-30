@@ -9,13 +9,10 @@ package com.teamdev.jxbrowser.compose
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -62,10 +59,6 @@ class BrowserView(browser: Browser) {
         mouseDispatcher = MouseEventDispatcher(widget)
     }
 
-    companion object {
-        private const val STOP_PROPAGATION = true
-    }
-
     /**
      * Adds a browser widget as a separate composable component.
      */
@@ -94,11 +87,12 @@ class BrowserView(browser: Browser) {
                 .onFocusEvent {
                     if (it.hasFocus) widget.focus() else widget.unfocus()
                 }
-                .focusable()
                 .clickable(
                     interactionSource = MutableInteractionSource(),
                     indication = null
                 ) {
+                    // We need to focus the component when capturing key events,
+                    // so we programmatically request focus on click.
                     focusRequester.requestFocus()
                 }
         ) {
@@ -118,6 +112,12 @@ class BrowserView(browser: Browser) {
         widget.displayId(Display.primaryDisplay().id())
         return widget
     }
+
+    companion object {
+        private const val STOP_PROPAGATION = true
+    }
+}
+
 
     private class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
         private val memoryImage = MemoryImage()
