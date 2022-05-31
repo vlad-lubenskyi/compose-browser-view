@@ -1,8 +1,6 @@
 # BrowserView for Compose Desktop
 
-A Compose component that displays content loaded in the Chromium-based browser.
-
-Uses [JxBrowser](https://www.teamdev.com/jxbrowser) to integrate a web browser and communicate with it.
+An experimental [JxBrowser](https://www.teamdev.com/jxbrowser) component for Compose Desktop.
 
 ![app-screenshot](/img/app-screenshot.png?raw=true "JxBrowser in Compose Desktop")
 
@@ -25,3 +23,6 @@ fun main() = application {
     browser.navigation().loadUrl("https://google.com")
 }
 ```
+---
+
+The information in this repository is provided on the following terms: https://www.teamdev.com/terms-and-privacy

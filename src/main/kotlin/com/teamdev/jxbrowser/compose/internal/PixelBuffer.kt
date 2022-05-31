@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
 /**
  * A pixel buffer to be rendered by Compose.
  */
-internal class MemoryImage {
+internal class PixelBuffer {
     private var width = 0
     private var height = 0
     private var buffer: ByteBuffer? = null

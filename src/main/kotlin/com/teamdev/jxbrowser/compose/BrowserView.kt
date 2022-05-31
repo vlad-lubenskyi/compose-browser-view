@@ -28,26 +28,28 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import com.teamdev.jxbrowser.browser.Browser
 import com.teamdev.jxbrowser.browser.internal.BrowserImpl
-import com.teamdev.jxbrowser.browser.internal.BrowserWidget
 import com.teamdev.jxbrowser.browser.internal.callback.PaintCallback
 import com.teamdev.jxbrowser.browser.internal.rpc.Paint
 import com.teamdev.jxbrowser.browser.internal.rpc.PaintRequest
 import com.teamdev.jxbrowser.compose.internal.KeyEventDispatcher
 import com.teamdev.jxbrowser.compose.internal.LayoutListener
-import com.teamdev.jxbrowser.compose.internal.MemoryImage
+import com.teamdev.jxbrowser.compose.internal.PixelBuffer
 import com.teamdev.jxbrowser.compose.internal.MouseEventDispatcher
 import com.teamdev.jxbrowser.internal.Display
 import org.jetbrains.skia.Image
 
 private const val STOP_PROPAGATION = true
-private val image: MutableState<Image?> = mutableStateOf(null)
 
 /**
  * Adds a widget that displays the content of the [Browser].
  */
 @Composable
 fun BrowserView(browser: Browser) {
-    val widget = createBrowserWidget(browser)
+    val image: MutableState<Image?> = mutableStateOf(null)
+    val widget = (browser as BrowserImpl).widget()
+    widget.displayId(Display.primaryDisplay().id())
+    widget.set(PaintCallback::class.java, OnPaint(image))
+
     val keyDispatcher = KeyEventDispatcher(widget)
     val focusRequester = FocusRequester()
     val layoutListener = LayoutListener(widget)
@@ -94,19 +96,12 @@ fun BrowserView(browser: Browser) {
     }
 }
 
-private fun createBrowserWidget(browser: Browser): BrowserWidget {
-    val widget = (browser as BrowserImpl).widget()
-    widget.set(PaintCallback::class.java, OnPaint(image))
-    widget.displayId(Display.primaryDisplay().id())
-    return widget
-}
-
 private class OnPaint(private val image: MutableState<Image?>) : PaintCallback {
-    private val memoryImage = MemoryImage()
+    private val pixelBuffer = PixelBuffer()
 
     override fun on(params: Paint.Request): Paint.Response? {
         val request: PaintRequest = params.paintRequest
-        memoryImage.updatePixels(
+        pixelBuffer.updatePixels(
             request.viewSize,
             request.dirtyRect,
             request.memoryId
