@@ -22,6 +22,8 @@ internal class LayoutListener(private val widget: BrowserWidget) {
 
     /**
      * Called when bounds of the browser view change.
+     *
+     * It defines how the browser view is measured and laid out.
      */
     fun onLayout(): MeasureScope.(Measurable, Constraints) -> MeasureResult {
         return { measurable, constraints ->
@@ -35,7 +37,9 @@ internal class LayoutListener(private val widget: BrowserWidget) {
     }
 
     /**
-     * Called when the position of the browser has changed.
+     * Called when the position of the browser view change.
+     *
+     * It defines the location of the browser view.
      */
     fun onPositioned(coordinates: LayoutCoordinates) {
         val positionInRoot = coordinates.positionInRoot()
@@ -46,8 +50,10 @@ internal class LayoutListener(private val widget: BrowserWidget) {
     }
 
     private fun updateBounds() {
-        val boundsInWindow = Rect.of(location.x, location.y, size.width / ScaleFactor.value, size.height / ScaleFactor.value)
-        val boundsInScreen = Rect.of(location.x, location.y, size.width / ScaleFactor.value, size.height / ScaleFactor.value)
+        val boundsInWindow =
+            Rect.of(location.x, location.y, size.width / ScaleFactor.value, size.height / ScaleFactor.value)
+        val boundsInScreen =
+            Rect.of(location.x, location.y, size.width / ScaleFactor.value, size.height / ScaleFactor.value)
         widget.bounds(boundsInWindow, boundsInScreen)
     }
 }
