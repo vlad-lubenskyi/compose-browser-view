@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2000-2022 TeamDev Ltd. All rights reserved.
+ * TeamDev PROPRIETARY and CONFIDENTIAL.
+ * Use is subject to license terms.
+ */
+
 package com.teamdev.jxbrowser.compose.internal
 
 import androidx.compose.ui.input.key.*
@@ -51,7 +57,9 @@ internal class KeyEventDispatcher(private val widget: BrowserWidget) {
         val keyPressed = builder.build()
         widget.dispatch(keyPressed)
 
-        // Fire the key typed event in between the key pressed and key released events.
+        // Compose does not fire the key typed event, but Chromium requires it.
+        // So, we fire the key typed event manually in between the key pressed and
+        // key released events.
         if (keyChar != CHAR_UNDEFINED) {
             notifyKeyTyped(keyPressed)
         }

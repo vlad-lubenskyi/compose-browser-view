@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2000-2022 TeamDev Ltd. All rights reserved.
+ * TeamDev PROPRIETARY and CONFIDENTIAL.
+ * Use is subject to license terms.
+ */
+
 package com.teamdev.jxbrowser.compose.internal
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.input.pointer.*
 import com.teamdev.jxbrowser.browser.internal.BrowserWidget
-import com.teamdev.jxbrowser.compose.LayoutListener.Companion.SCALE_FACTOR
 import com.teamdev.jxbrowser.os.Environment.isMac
 import com.teamdev.jxbrowser.ui.*
 import com.teamdev.jxbrowser.ui.event.*
@@ -12,8 +17,16 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import javax.swing.SwingUtilities.*
 
-class MouseEventDispatcher(private val widget: BrowserWidget) {
+/**
+ * Dispatches Compose mouse events to Chromium.
+ */
+internal class MouseEventDispatcher(private val widget: BrowserWidget) {
 
+    /**
+     * Dispatches the given mouse `event` to Chromium.
+     *
+     * @param event a Compose mouse event
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     fun dispatch(event: PointerEvent) {
         when (event.type) {
@@ -171,7 +184,7 @@ class MouseEventDispatcher(private val widget: BrowserWidget) {
         val position = event.changes.first().position
         val x = position.x.toInt()
         val y = position.y.toInt()
-        return Point.of(x / SCALE_FACTOR, y / SCALE_FACTOR)
+        return Point.of(x / ScaleFactor.value, y / ScaleFactor.value)
     }
 
     private fun screenPoint(event: PointerEvent): Point {
