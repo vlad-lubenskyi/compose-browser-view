@@ -1,4 +1,4 @@
-package com.teamdev.jxbrowser.compose
+package com.teamdev.jxbrowser.compose.internal
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.awtEventOrNull

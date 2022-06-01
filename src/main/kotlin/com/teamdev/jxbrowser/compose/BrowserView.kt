@@ -2,12 +2,11 @@ package com.teamdev.jxbrowser.compose
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -15,6 +14,7 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -24,27 +24,29 @@ import com.teamdev.jxbrowser.browser.internal.BrowserWidget
 import com.teamdev.jxbrowser.browser.internal.callback.PaintCallback
 import com.teamdev.jxbrowser.browser.internal.rpc.Paint
 import com.teamdev.jxbrowser.browser.internal.rpc.PaintRequest
+import com.teamdev.jxbrowser.compose.internal.KeyEventDispatcher
+import com.teamdev.jxbrowser.compose.internal.MouseEventDispatcher
 import com.teamdev.jxbrowser.internal.Display
 import com.teamdev.jxbrowser.ui.Size
 import org.jetbrains.skia.Image
 import com.teamdev.jxbrowser.ui.Rect as JxRect
 
-
 class BrowserView(browser: Browser) {
     private var image: MutableState<Image?> = mutableStateOf(null)
+    private val widget: BrowserWidget
+    private val keyDispatcher: KeyEventDispatcher
     private val layoutListener: LayoutListener
     private val mouseDispatcher: MouseEventDispatcher
-    private val widget: BrowserWidget
 
     init {
         widget = (browser as BrowserImpl).widget()
         widget.set(PaintCallback::class.java, OnPaint(image))
-        widget.displayId(Display.primaryDisplay().id());
+        widget.displayId(Display.primaryDisplay().id())
+        keyDispatcher = KeyEventDispatcher(widget)
         layoutListener = LayoutListener(widget)
         mouseDispatcher = MouseEventDispatcher(widget)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun composable() {
         widget.show()
@@ -63,12 +65,24 @@ class BrowserView(browser: Browser) {
                         }
                     }
                 }
+                .onKeyEvent {
+                    keyDispatcher.dispatch(it)
+                    STOP_PROPAGATION
+                }
                 .onFocusEvent {
                     if (it.hasFocus) {
                         widget.focus()
                     } else {
                         widget.unfocus()
                     }
+                }
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    // We need to focus the component when capturing key events,
+                    // so we programmatically request focus on click.
+                    focusRequester.requestFocus()
                 }
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -79,6 +93,10 @@ class BrowserView(browser: Browser) {
                 }
             }
         }
+    }
+
+    companion object {
+        private const val STOP_PROPAGATION = true
     }
 }
 
