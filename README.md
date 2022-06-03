@@ -4,6 +4,11 @@ An experimental [JxBrowser](https://www.teamdev.com/jxbrowser) component for Com
 
 ![app-screenshot](/img/app-screenshot.png?raw=true "JxBrowser in Compose Desktop")
 
+## JxBrowser License
+
+To run the example, you will need a valid JxBrowser license.
+For more information please see the [Licensing](https://jxbrowser-support.teamdev.com/docs/guides/introduction/licensing.html#licensing) guide.
+
 ## Usage
 
 Use `BrowserView(browser)` function to add a component:
